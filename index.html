@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Инвариантные рисунки</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --bg-bottom: rgba(244,246,250,.92);
+    --card: #ffffff;
+    --text: #1a202c;
+    --muted: #64748b;
+    --label: #475569;
+    --input-border: #cbd5e1;
+    --input-bg: #ffffff;
+    --btn-bg: #e2e8f0;
+    --btn-text: #1a202c;
+    --cell-bg: #e8ecf2;
+    --cell-on: #2563eb;
+    --cell-hole-a: #cbd5e1;
+    --cell-hole-b: #94a3b8;
+    --shadow: 0 1px 3px rgba(15,23,42,.08);
+    --divider: #e2e8f0;
+    --chip-bg: #dbeafe;
+    --chip-text: #1e40af;
+    --chip-btn-bg: rgba(30,64,175,.15);
+    --primary: #2563eb;
+    --primary-active: #1d4ed8;
+    --more-bg: rgba(0,0,0,.08);
+  }
+  body.dark {
+    --bg: #0b1220;
+    --bg-bottom: rgba(11,18,32,.92);
+    --card: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --label: #94a3b8;
+    --input-border: #334155;
+    --input-bg: #0f172a;
+    --btn-bg: #334155;
+    --btn-text: #e2e8f0;
+    --cell-bg: #334155;
+    --cell-on: #3b82f6;
+    --cell-hole-a: #1e293b;
+    --cell-hole-b: #0f172a;
+    --shadow: 0 1px 3px rgba(0,0,0,.45);
+    --divider: #334155;
+    --chip-bg: #1e3a8a;
+    --chip-text: #bfdbfe;
+    --chip-btn-bg: rgba(191,219,254,.2);
+    --more-bg: rgba(255,255,255,.12);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 12px 12px 110px;
+    min-height: 100vh;
+    font-size: 15px;
+    transition: background .2s, color .2s;
+  }
+  h1 { font-size: 17px; margin: 4px 0 12px 12px; font-weight: 700; }
+  h1 small { display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:2px;}
+
+  /* верхняя панель с кнопками */
+  .topbar { display: flex; align-items: flex-start; gap: 8px; }
+  .topbar h1 { flex: 1 1 auto; }
+  .top-actions { display: flex; gap: 6px; flex: 0 0 auto; margin-top: 2px; }
+  .icon-btn {
+    width: 38px; height: 38px; padding: 0;
+    border-radius: 11px;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--divider);
+    font-weight: 700;
+    box-shadow: var(--shadow);
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    transition: background .2s;
+  }
+  .card.err {
+    outline: 2px solid #ef4444;
+    outline-offset: 1px;
+  }
+  .card-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  label { display: flex; flex-direction: column; font-size: 12px; color: var(--label); gap: 4px; flex: 1 1 0; }
+  input[type=number] {
+    font-size: 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text);
+    outline: none;
+  }
+  input[type=number]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+  input[type=number]::placeholder { color: var(--muted); opacity: .6; }
+
+  button {
+    font-family: inherit;
+    font-size: 15px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .05s, background .15s;
+  }
+  button:active { transform: scale(.97); }
+  button.primary { background: var(--primary); color: #fff; }
+  button.primary:active { background: var(--primary-active); }
+
+  /* фигуры-ходы */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 0; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    border-radius: 999px;
+    padding: 5px 6px 5px 12px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .chip button {
+    background: var(--chip-btn-bg);
+    color: var(--chip-text);
+    border-radius: 999px;
+    width: 22px; height: 22px;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .add-shape { display: flex; align-items: center; gap: 6px; }
+  .add-shape input { width: 60px; flex: 0 0 auto; text-align: center; }
+  .add-shape span { color: var(--muted); font-weight: 700; }
+  .add-shape button { flex: 1 1 auto; padding: 10px 8px; }
+
+  /* поле */
+  .grid-viewport {
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .grid {
+    display: grid;
+    gap: 3px;
+    width: 100%;
+    transform-origin: 0 0;
+    will-change: transform;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .cell {
+    aspect-ratio: 1 / 1;
+    background: var(--cell-bg);
+    border-radius: 6px;
+    transition: background .1s;
+    -webkit-touch-callout: none;
+  }
+  .cell.on { background: var(--cell-on); }
+  .cell.hole {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--cell-hole-a) 0,
+      var(--cell-hole-a) 4px,
+      var(--cell-hole-b) 4px,
+      var(--cell-hole-b) 8px
+    );
+  }
+  .cell.bad { box-shadow: inset 0 0 0 2px #ef4444; background: #fecaca; }
+  .cell.on.bad { background: #ef4444; }
+  body.dark .cell.bad { background: #7f1d1d; }
+  body.dark .cell.on.bad { background: #ef4444; }
+
+  /* результат */
+  .result {
+    display: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .result.show { display: block; }
+  .result.ok  { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .result.bad { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+  .result.warn{ background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  body.dark .result.ok  { background: #14532d; color: #bbf7d0; border-color: #166534; }
+  body.dark .result.bad { background: #4c1d1d; color: #fecaca; border-color: #7f1d1d; }
+  body.dark .result.warn{ background: #4a3410; color: #fde68a; border-color: #78350f; }
+  .result small { opacity: .85; }
+
+  .more-btn {
+    margin-top: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    background: var(--more-bg);
+    color: inherit;
+    font-weight: 700;
+  }
+
+  /* нижняя панель */
+  .bottom {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--bg-bottom);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--divider);
+    z-index: 50;
+  }
+  .trash {
+    flex: 0 0 auto;
+    width: 52px;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1px solid var(--divider);
+    color: var(--text);
+  }
+  .bottom .primary { flex: 1 1 auto; padding: 14px; font-size: 15px; }
+
+  /* плашка с задачей */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(15,23,42,.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn .18s ease;
+  }
+  .overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    position: relative;
+    background: var(--card);
+    color: var(--text);
+    border-radius: 16px;
+    padding: 22px 18px 18px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 12px 44px rgba(0,0,0,.35);
+    font-size: 15px;
+    line-height: 1.5;
+    animation: popIn .18s ease;
+  }
+  @keyframes popIn { from { transform: scale(.94); opacity: .5; } to { transform: scale(1); opacity: 1; } }
+  .modal p { margin: 0 0 10px; }
+  .modal p:last-child { margin-bottom: 0; }
+  .modal b { display: block; margin-bottom: 10px; }
+  .modal-close {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 34px; height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 20px;
+    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Инвариантные рисунки ✨
+    <small>Программа проверит, инвариантен ли ваш рисунок относительно ходов</small>
+  </h1>
+  <div class="top-actions">
+    <button id="btnTheme" class="icon-btn" title="Тема">🌙</button>
+    <button id="btnHelp" class="icon-btn" title="Задача">?</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Размер поля</div>
+  <div class="row">
+    <label>Ширина
+      <input id="inpCols" type="number" value="5" min="1" max="150" inputmode="numeric">
+    </label>
+    <label>Высота
+      <input id="inpRows" type="number" value="5" min="1" max="150" inputmode="numeric">
+    </label>
+    <button id="btnCreate" style="flex:0 0 auto;align-self:flex-end;">Создать</button>
+  </div>
+</div>
+
+<div class="card" id="shapeCard">
+  <div class="card-title">Добавьте фигуры–ходы</div>
+  <div id="chips" class="chips"></div>
+  <div class="add-shape">
+    <input id="inpSH" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
+    <span>×</span>
+    <input id="inpSW" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
+    <button id="btnAddShape">Добавить</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Выберите клетки для рисунка</div>
+  <div style="color:var(--muted);font-size:13px;margin-bottom:8px;">Удержание = дырка</div>
+  <div id="gridViewport" class="grid-viewport">
+    <div id="grid" class="grid"></div>
+  </div>
+</div>
+
+<div id="result" class="result"></div>
+
+<div class="bottom">
+  <button id="btnClear" class="trash" title="Очистить поле">🗑️</button>
+  <button id="btnCheck" class="primary">Проверить инвариантность</button>
+</div>
+
+<!-- Плашка с условием задачи -->
+<div id="overlay" class="overlay hidden">
+  <div class="modal">
+    <button class="modal-close" id="btnCloseHelp" aria-label="Закрыть">×</button>
+    <b>Задача</b>
+    <p><i>В каждой клетке прямоугольника горит лампочка. За один ход можно переключить состояние лампочек любого клеточного прямоугольника из списка. Можно ли спустя несколько ходов выключить все лампочки?</i></p>
+    <p>...</p><p>Предлагается искать инвариантный рисунок — поднабор ламп, к которому сводится задача</p>
+    <p>Подробнее <a href="ссылку вставь!">читайте</a> в «Ёжике в матане»</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  let rows = 5, cols = 5;
+  // 0 — пусто, 1 — отмечено, 2 — дырка (клетка удалена)
+  let grid = [];
+  let shapes = [];
+
+  const $ = (id) => document.getElementById(id);
+  const gridEl = $('grid');
+  const viewport = $('gridViewport');
+  const resultEl = $('result');
+  const chipsEl = $('chips');
+  const shapeCard = $('shapeCard');
+
+  /* ---------- тема ---------- */
+  const btnTheme = $('btnTheme');
+  function setTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    btnTheme.textContent = dark ? '☀️' : '🌙';
+    try { localStorage.setItem('inv-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  }
+  btnTheme.addEventListener('click', () => {
+    setTheme(!document.body.classList.contains('dark'));
+  });
+  try { if (localStorage.getItem('inv-theme') === 'dark') setTheme(true); } catch (e) {}
+
+  /* ---------- плашка с задачей ---------- */
+  const overlay = $('overlay');
+  $('btnHelp').addEventListener('click', () => overlay.classList.remove('hidden'));
+  $('btnCloseHelp').addEventListener('click', () => overlay.classList.add('hidden'));
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.add('hidden');
+  });
+
+  /* ---------- построение поля ---------- */
+  function buildGrid(r, c) {
+    rows = r; cols = c;
+    grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+    gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    gridEl.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const d = document.createElement('div');
+        d.className = 'cell';
+        d.dataset.i = i;
+        d.dataset.j = j;
+        frag.appendChild(d);
+      }
+    }
+    gridEl.appendChild(frag);
+    resetZoom();
+    hideResult();
+  }
+
+  function cellEl(i, j) {
+    return gridEl.children[i * cols + j];
+  }
+
+  function setCell(i, j, v) {
+    if (grid[i][j] === 2) return;          // дырки не трогаем
+    if (grid[i][j] === v) return;
+    grid[i][j] = v;
+    const el = cellEl(i, j);
+    el.classList.toggle('on', !!v);
+    el.classList.remove('hole');
+    hideResult();
+  }
+
+  function toggleHole(i, j) {
+    const el = cellEl(i, j);
+    if (grid[i][j] === 2) {
+      grid[i][j] = 0;
+      el.classList.remove('hole');
+      el.classList.remove('on');
+    } else {
+      grid[i][j] = 2;
+      el.classList.remove('on');
+      el.classList.add('hole');
+    }
+    hideResult();
+  }
+
+  /* ---------- фигуры ---------- */
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    if (shapes.length === 0) {
+      const e = document.createElement('span');
+      e.style.cssText = 'color:var(--muted);font-size:13px;';
+      e.textContent = 'Пока ни одной фигуры';
+      chipsEl.appendChild(e);
+      return;
+    }
+    shapes.forEach((s, idx) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = `${s.r}×${s.c}`;
+      const x = document.createElement('button');
+      x.textContent = '×';
+      x.addEventListener('click', () => {
+        shapes.splice(idx, 1);
+        renderChips();
+        hideResult();
+      });
+      chip.appendChild(x);
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  /* ---------- результат ---------- */
+  function hideResult() {
+    if (!resultEl.classList.contains('show')) return;
+    resultEl.className = 'result';
+    resultEl.innerHTML = '';
+    clearBadMarks();
+  }
+  function showResult(kind, html) {
+    resultEl.className = 'result show ' + kind;
+    resultEl.innerHTML = html;
+    requestAnimationFrame(() => {
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+  function clearBadMarks() {
+    for (const el of gridEl.children) el.classList.remove('bad');
+  }
+
+  /* ---------- трансформации ---------- */
+  let scale = 1, tx = 0, ty = 0;
+  function applyTransform() {
+    gridEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+  function resetZoom() {
+    scale = 1; tx = 0; ty = 0;
+    applyTransform();
+  }
+  function clampPan() {
+    const w = viewport.clientWidth, h = viewport.clientHeight;
+    const minTx = w - w * scale, minTy = h - h * scale;
+    tx = Math.min(0, Math.max(minTx, tx));
+    ty = Math.min(0, Math.max(minTy, ty));
+  }
+  function cellFromPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (!el || !el.closest) return null;
+    const cell = el.closest('.cell');
+    if (!cell || !gridEl.contains(cell)) return null;
+    return cell;
+  }
+
+  /* ---------- жесты ---------- */
+  const pointers = new Map();
+  let drawing = false;
+  let drawVal = 1;
+  let lastPinchDist = 0;
+  let lastMid = null;
+
+  // long-press
+  const LONG_PRESS_MS = 500;
+  const MOVE_TOLERANCE_PX = 8;
+  let longPressTimer = null;
+  let longPressFired = false;
+  let startCell = null;
+  let startPoint = null;
+
+  viewport.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1) {
+      const cell = cellFromPoint(e.clientX, e.clientY);
+      if (cell) {
+        startCell = { i: +cell.dataset.i, j: +cell.dataset.j };
+        startPoint = { x: e.clientX, y: e.clientY };
+        drawing = false;
+        longPressFired = false;
+        longPressTimer = setTimeout(() => {
+          longPressTimer = null;
+          longPressFired = true;
+          if (startCell) toggleHole(startCell.i, startCell.j);
+          if (navigator.vibrate) { try { navigator.vibrate(30); } catch (_) {} }
+        }, LONG_PRESS_MS);
+      }
+    } else if (pointers.size >= 2) {
+      // начинается жест двумя пальцами — отменяем long-press/рисование
+      drawing = false;
+      longPressFired = false;
+      startCell = null;
+      startPoint = null;
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+
+      if (pointers.size === 2) {
+        const pts = [...pointers.values()];
+        lastPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+        const rect = viewport.getBoundingClientRect();
+        lastMid = {
+          x: (pts[0].x + pts[1].x) / 2 - rect.left,
+          y: (pts[0].y + pts[1].y) / 2 - rect.top
+        };
+      }
+    }
+    e.preventDefault();
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    /* --- два пальца: зум + панорамирование --- */
+    if (pointers.size >= 2) {
+      const pts = [...pointers.values()].slice(0, 2);
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+      const rect = viewport.getBoundingClientRect();
+      const midX = (pts[0].x + pts[1].x) / 2 - rect.left;
+      const midY = (pts[0].y + pts[1].y) / 2 - rect.top;
+
+      if (lastPinchDist > 0 && lastMid) {
+        // панорамирование по смещению средней точки
+        tx += midX - lastMid.x;
+        ty += midY - lastMid.y;
+
+        // зум вокруг текущей средней точки
+        const k = dist / lastPinchDist;
+        const newScale = Math.min(8, Math.max(1, scale * k));
+        const ratio = newScale / scale;
+        tx = midX - ratio * (midX - tx);
+        ty = midY - ratio * (midY - ty);
+        scale = newScale;
+
+        clampPan();
+        applyTransform();
+      }
+      lastPinchDist = dist;
+      lastMid = { x: midX, y: midY };
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+
+    /* --- один палец: рисование --- */
+    if (pointers.size === 1 && startCell) {
+      const dx = e.clientX - startPoint.x;
+      const dy = e.clientY - startPoint.y;
+      const moved = Math.hypot(dx, dy) > MOVE_TOLERANCE_PX;
+
+      if (!drawing && !longPressFired) {
+        const cell = cellFromPoint(e.clientX, e.clientY);
+        const sameCell = cell && +cell.dataset.i === startCell.i && +cell.dataset.j === startCell.j;
+        if (!sameCell || moved) {
+          if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+          const v = grid[startCell.i][startCell.j];
+          drawVal = (v === 1) ? 0 : 1;
+          drawing = true;
+          if (v !== 2) setCell(startCell.i, startCell.j, drawVal);
+        }
+      }
+
+      if (drawing) {
+        const cell = cellFromPoint(e.clientX, e.clientY);
+        if (cell) {
+          setCell(+cell.dataset.i, +cell.dataset.j, drawVal);
+        }
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  function endPointer(e) {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.delete(e.pointerId);
+
+    if (pointers.size < 2) {
+      lastPinchDist = 0;
+      lastMid = null;
+    }
+
+    if (pointers.size === 0) {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+
+      // обычный тап: переключаем клетку
+      if (!drawing && !longPressFired && startCell) {
+        const v = grid[startCell.i][startCell.j];
+        if (v !== 2) setCell(startCell.i, startCell.j, v ? 0 : 1);
+      }
+
+      drawing = false;
+      longPressFired = false;
+      startCell = null;
+      startPoint = null;
+    } else if (pointers.size === 1) {
+      // с двух пальцев остался один — новые жесты не начинаем до полного отпускания
+      drawing = false;
+      startCell = null;
+      longPressFired = false;
+    }
+  }
+  window.addEventListener('pointerup', endPointer);
+  window.addEventListener('pointercancel', endPointer);
+
+  /* ---------- проверка инвариантности ---------- */
+  let allFailures = [];
+  let shownFailures = 8;
+
+  function renderFailures() {
+    const total = allFailures.length;
+    const shown = Math.min(shownFailures, total);
+    const list = allFailures.slice(0, shown).map(x =>
+      `• ${x.s.r}×${x.s.c} в позиции (${x.i + 1}, ${x.j + 1}) меняются: ${x.sum}`
+    ).join('<br>');
+
+    let html = `<b>Рисунок НЕ инвариантен</b><br><br>
+      Найдено нарушений — <b>${total}</b>:<br><br><small>${list}`;
+
+    if (shown < total) {
+      html += `<br><button class="more-btn" id="btnMore">Показать ещё</button>`;
+    }
+    html += `<br><br>(Подсвечен один из «плохих» ходов)</small>`;
+
+    showResult('bad', html);
+
+    const mb = $('btnMore');
+    if (mb) mb.addEventListener('click', () => {
+      shownFailures += 8;
+      renderFailures();
+    });
+  }
+
+  function checkInvariant() {
+    clearBadMarks();
+
+    let totalMarked = 0;
+    for (let i = 0; i < rows; i++)
+      for (let j = 0; j < cols; j++)
+        if (grid[i][j] === 1) totalMarked++;
+
+    if (shapes.length === 0) {
+      showResult('bad', 'Не задано ни одной фигуры-хода 😐');
+      shapeCard.classList.add('err');
+      return;
+    }
+
+    const failures = [];
+    let anyFit = false;
+
+    for (const s of shapes) {
+      if (s.r > rows || s.c > cols) continue;
+      anyFit = true;
+      for (let i = 0; i + s.r <= rows; i++) {
+        for (let j = 0; j + s.c <= cols; j++) {
+          let sum = 0;
+          for (let a = 0; a < s.r; a++)
+            for (let b = 0; b < s.c; b++)
+              if (grid[i + a][j + b] === 1) sum++;
+          if (sum % 2 !== 0) failures.push({ s, i, j, sum });
+        }
+      }
+    }
+
+    if (!anyFit) {
+      showResult('bad', 'Заданные фигуры не помещаются на поле 😐');
+      return;
+    }
+
+    if (failures.length === 0) {
+      const odd = totalMarked % 2 === 1;
+      if (odd) {
+        showResult('ok',
+          `<b>Рисунок инвариантен</b><br><br>
+           Всего отмечено: <b>${totalMarked}</b>, то есть нечётное число.<br><br>
+           Значит, чётность числа горящих лампочек на отмеченных клетках сохраняется и отличается от итоговой чётности после всех переключений.<br><br>
+           <b>Выключить все лампочки невозможно 🥳</b>`);
+      } else {
+        showResult('warn',
+          `<b>Рисунок инвариантен</b><br><br>
+           Всего отмечено: <b>${totalMarked}</b>, то есть чётное число.<br><br>
+           Поэтому этот инвариант не различает «всё горит» и «всё выключено» — нужно найти рисунок с нечётным числом отмеченных клеток.<br><br>
+           <b>Ищем дальше 🥲</b>`);
+      }
+      return;
+    }
+
+    // подсветим первую неудачную фигуру (дырки не подсвечиваем)
+    const f = failures[0];
+    for (let a = 0; a < f.s.r; a++)
+      for (let b = 0; b < f.s.c; b++) {
+        const ii = f.i + a, jj = f.j + b;
+        if (grid[ii][jj] === 2) continue;
+        cellEl(ii, jj).classList.add('bad');
+      }
+
+    allFailures = failures;
+    shownFailures = 8;
+    renderFailures();
+  }
+
+  /* ---------- обработчики ---------- */
+  $('btnCreate').addEventListener('click', () => {
+    let r = parseInt($('inpRows').value, 10);
+    let c = parseInt($('inpCols').value, 10);
+    r = Math.min(150, Math.max(1, isNaN(r) ? 5 : r));
+    c = Math.min(150, Math.max(1, isNaN(c) ? 5 : c));
+    $('inpRows').value = r;
+    $('inpCols').value = c;
+    buildGrid(r, c);
+  });
+
+  $('btnAddShape').addEventListener('click', () => {
+    let h = parseInt($('inpSH').value, 10);
+    let w = parseInt($('inpSW').value, 10);
+    h = Math.min(150, Math.max(1, isNaN(h) ? 2 : h));
+    w = Math.min(150, Math.max(1, isNaN(w) ? 2 : w));
+    $('inpSH').value = h;
+    $('inpSW').value = w;
+    if (!shapes.some(s => s.r === h && s.c === w)) {
+      shapes.push({ r: h, c: w });
+      renderChips();
+      hideResult();
+    }
+  });
+
+  // Очистка: убираем отметки, дырки оставляем
+  $('btnClear').addEventListener('click', () => {
+    for (let i = 0; i < rows; i++)
+      for (let j = 0; j < cols; j++) {
+        if (grid[i][j] === 2) continue;
+        grid[i][j] = 0;
+        cellEl(i, j).classList.remove('on');
+      }
+    hideResult();
+  });
+
+  $('btnCheck').addEventListener('click', checkInvariant);
+
+  // снимаем подсветку карточки фигур при любом взаимодействии с ней
+  ['click', 'input', 'focusin', 'change'].forEach(ev =>
+    shapeCard.addEventListener(ev, () => shapeCard.classList.remove('err'))
+  );
+
+  /* ---------- старт ---------- */
+  buildGrid(5, 5);
+  renderChips();
+})();
+</script>
+</body>
+    </html>
