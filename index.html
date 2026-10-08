@@ -52,6 +52,64 @@
     --more-bg: rgba(255,255,255,.12);
   }
 
+  /* ---------- ХАКЕРСКИЙ РЕЖИМ ---------- */
+  body.hacker {
+    --bg: #000000;
+    --bg-bottom: rgba(0,0,0,.95);
+    --card: #0a1a0a;
+    --text: #00ff41;
+    --muted: #00a828;
+    --label: #00c832;
+    --input-border: #00a828;
+    --input-bg: #000000;
+    --btn-bg: #003300;
+    --btn-text: #00ff41;
+    --cell-bg: #000000;
+    --cell-on: #00cc33;
+    --cell-hole-a: #001a00;
+    --cell-hole-b: #004400;
+    --shadow: 0 0 10px rgba(0,255,65,.4);
+    --divider: #004400;
+    --chip-bg: #003300;
+    --chip-text: #00ff41;
+    --chip-btn-bg: rgba(0,255,65,.2);
+    --primary: #00cc33;
+    --primary-active: #00a828;
+    --more-bg: rgba(0,255,65,.15);
+    font-family: "Courier New", ui-monospace, monospace;
+    padding-bottom: 170px;
+  }
+  body.hacker .card { border: 1px solid #00a828; }
+  body.hacker button { font-family: inherit; }
+  body.hacker input[type=number] { font-family: inherit; }
+  body.hacker .primary { color: #000; }
+  body.hacker .result.ok {
+    background: #001a00; color: #00ff41; border-color: #00cc33;
+  }
+  body.hacker .result.bad {
+    background: #1a0000; color: #ff4141; border-color: #cc0000;
+  }
+  body.hacker .result.warn {
+    background: #1a1a00; color: #ffff41; border-color: #cccc00;
+  }
+  body.hacker h1 small { color: #00a828; }
+  body.hacker .icon-btn { border-color: #00a828; }
+  body.hacker .cell { outline: 1px solid #003300; }
+  body.hacker::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,255,65,.035) 0px,
+      rgba(0,255,65,.035) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -201,6 +259,21 @@
   body.dark .cell.bad { background: #7f1d1d; }
   body.dark .cell.on.bad { background: #ef4444; }
 
+  /* клетка-инвариант */
+  .cell.inv {
+    background: #00ff41;
+    position: relative;
+    z-index: 1;
+    animation: invPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes invPulse {
+    0%, 100% { box-shadow: 0 0 6px #00ff41, 0 0 12px rgba(0,255,65,.6); }
+    50% { box-shadow: 0 0 14px #00ff41, 0 0 28px rgba(0,255,65,.9); }
+  }
+  body.hacker .cell.inv {
+    background: #00ff41;
+  }
+
   /* результат */
   .result {
     display: none;
@@ -257,6 +330,30 @@
   }
   .bottom .primary { flex: 1 1 auto; padding: 14px; font-size: 15px; }
 
+  /* кнопка «найти инвариант» (только в хакерском режиме) */
+  #btnFindInv {
+    display: none;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    padding: 12px;
+    background: #00ff41;
+    color: #000;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 10px;
+    z-index: 49;
+    box-shadow: 0 0 20px rgba(0,255,65,.6);
+    font-family: "Courier New", ui-monospace, monospace;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+  }
+  body.hacker #btnFindInv { display: block; }
+  #btnFindInv:active { transform: scale(.98); background: #00cc33; }
+
   /* плашка с задачей */
   .overlay {
     position: fixed;
@@ -307,8 +404,8 @@
 <body>
 
 <div class="topbar">
-  <h1>Инвариантные рисунки ✨
-    <small>Программа проверит, инвариантен ли ваш рисунок относительно ходов</small>
+  <h1>ИНВАРИАНТНЫЕ РИСУНКИ
+    <small>проверим, инвариантен ли ваш рисунок относительно ходов</small>
   </h1>
   <div class="top-actions">
     <button id="btnTheme" class="icon-btn" title="Тема">🌙</button>
@@ -319,30 +416,30 @@
 <div class="card">
   <div class="card-title">Размер поля</div>
   <div class="row">
-    <label>Ширина
+    <label>ширина
       <input id="inpCols" type="number" value="5" min="1" max="150" inputmode="numeric">
     </label>
-    <label>Высота
+    <label>высота
       <input id="inpRows" type="number" value="5" min="1" max="150" inputmode="numeric">
     </label>
-    <button id="btnCreate" style="flex:0 0 auto;align-self:flex-end;">Создать</button>
+    <button id="btnCreate" style="flex:0 0 auto;align-self:flex-end;">создать</button>
   </div>
 </div>
 
 <div class="card" id="shapeCard">
-  <div class="card-title">Добавьте фигуры–ходы</div>
+  <div class="card-title">добавьте фигуры–ходы</div>
   <div id="chips" class="chips"></div>
   <div class="add-shape">
     <input id="inpSH" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
     <span>×</span>
     <input id="inpSW" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
-    <button id="btnAddShape">Добавить</button>
+    <button id="btnAddShape">добавить</button>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">Выберите клетки для рисунка</div>
-  <div style="color:var(--muted);font-size:13px;margin-bottom:8px;">Удержание = дырка</div>
+  <div class="card-title">выберите клетки для рисунка</div>
+  <div style="color:var(--muted);font-size:13px;margin-bottom:8px;">удержание = дырка</div>
   <div id="gridViewport" class="grid-viewport">
     <div id="grid" class="grid"></div>
   </div>
@@ -350,19 +447,21 @@
 
 <div id="result" class="result"></div>
 
+<button id="btnFindInv">☢️ найти инвариант ☢️</button>
+
 <div class="bottom">
   <button id="btnClear" class="trash" title="Очистить поле">🗑️</button>
-  <button id="btnCheck" class="primary">Проверить инвариантность</button>
+  <button id="btnCheck" class="primary">проверить инвариантность</button>
 </div>
 
 <!-- Плашка с условием задачи -->
 <div id="overlay" class="overlay hidden">
   <div class="modal">
     <button class="modal-close" id="btnCloseHelp" aria-label="Закрыть">×</button>
-    <b>Задача</b>
+    <b>ЗАДАЧА</b>
     <p><i>В каждой клетке прямоугольника горит лампочка. За один ход можно переключить состояние лампочек любого клеточного прямоугольника из списка. Можно ли спустя несколько ходов выключить все лампочки?</i></p>
-    <p>...</p><p>Предлагается искать инвариантный рисунок — поднабор ламп, к которому сводится задача</p>
-    <p>Подробнее <a href="ссылку вставь!">читайте</a> в «Ёжике в матане»</p>
+    <p>...</p><p>Предлагается искать инвариантный рисунок — поднабор ламп нечётной площади, к которому сводится задача.</p>
+    <p>Подробнее <a href="ссылку вставь!">читайте</a> в «Ёжике в матане».</p>
   </div>
 </div>
 
@@ -417,12 +516,21 @@
       }
     }
     gridEl.appendChild(frag);
+    invHighlightsExist = false;
     resetZoom();
     hideResult();
   }
 
   function cellEl(i, j) {
     return gridEl.children[i * cols + j];
+  }
+
+  /* ---------- подсветка инварианта ---------- */
+  let invHighlightsExist = false;
+  function clearInvHighlights() {
+    if (!invHighlightsExist) return;
+    for (const el of gridEl.children) el.classList.remove('inv');
+    invHighlightsExist = false;
   }
 
   function setCell(i, j, v) {
@@ -432,6 +540,7 @@
     const el = cellEl(i, j);
     el.classList.toggle('on', !!v);
     el.classList.remove('hole');
+    el.classList.remove('inv');
     hideResult();
   }
 
@@ -446,6 +555,7 @@
       el.classList.remove('on');
       el.classList.add('hole');
     }
+    el.classList.remove('inv');
     hideResult();
   }
 
@@ -455,7 +565,7 @@
     if (shapes.length === 0) {
       const e = document.createElement('span');
       e.style.cssText = 'color:var(--muted);font-size:13px;';
-      e.textContent = 'Пока ни одной фигуры';
+      e.textContent = 'пока ни одной фигуры';
       chipsEl.appendChild(e);
       return;
     }
@@ -468,6 +578,7 @@
       x.addEventListener('click', () => {
         shapes.splice(idx, 1);
         renderChips();
+        clearInvHighlights();
         hideResult();
       });
       chip.appendChild(x);
@@ -675,13 +786,13 @@
       `• ${x.s.r}×${x.s.c} в позиции (${x.i + 1}, ${x.j + 1}) меняются: ${x.sum}`
     ).join('<br>');
 
-    let html = `<b>Рисунок НЕ инвариантен</b><br><br>
-      Найдено нарушений — <b>${total}</b>:<br><br><small>${list}`;
+    let html = `<b>РИСУНОК НЕ ИНВАРИАНТЕН</b><br><br>
+      найдено нарушений — <b>${total}</b>:<br><br><small>${list}`;
 
     if (shown < total) {
-      html += `<br><button class="more-btn" id="btnMore">Показать ещё</button>`;
+      html += `<br><button class="more-btn" id="btnMore">показать ещё</button>`;
     }
-    html += `<br><br>(Подсвечен один из «плохих» ходов)</small>`;
+    html += `<br><br>(подсвечен один из «плохих» ходов)</small>`;
 
     showResult('bad', html);
 
@@ -701,7 +812,7 @@
         if (grid[i][j] === 1) totalMarked++;
 
     if (shapes.length === 0) {
-      showResult('bad', 'Не задано ни одной фигуры-хода 😐');
+      showResult('bad', 'не задано ни одной фигуры-хода 😐');
       shapeCard.classList.add('err');
       return;
     }
@@ -724,7 +835,7 @@
     }
 
     if (!anyFit) {
-      showResult('bad', 'Заданные фигуры не помещаются на поле 😐');
+      showResult('bad', 'заданные фигуры не помещаются на поле 😐');
       return;
     }
 
@@ -732,16 +843,16 @@
       const odd = totalMarked % 2 === 1;
       if (odd) {
         showResult('ok',
-          `<b>Рисунок инвариантен</b><br><br>
-           Всего отмечено: <b>${totalMarked}</b>, то есть нечётное число.<br><br>
-           Значит, чётность числа горящих лампочек на отмеченных клетках сохраняется и отличается от итоговой чётности после всех переключений.<br><br>
-           <b>Выключить все лампочки невозможно 🥳</b>`);
+          `<b>РИСУНОК ИНВАРИАНТЕН</b><br><br>
+           всего отмечено: <b>${totalMarked}</b>, то есть нечётное число<br><br>
+           значит, чётность числа горящих лампочек на отмеченных клетках сохраняется и отличается от итоговой чётности после всех переключений<br><br>
+           <b>выключить все лампочки невозможно 🥳</b>`);
       } else {
         showResult('warn',
-          `<b>Рисунок инвариантен</b><br><br>
-           Всего отмечено: <b>${totalMarked}</b>, то есть чётное число.<br><br>
-           Поэтому этот инвариант не различает «всё горит» и «всё выключено» — нужно найти рисунок с нечётным числом отмеченных клеток.<br><br>
-           <b>Ищем дальше 🥲</b>`);
+          `<b>РИСУНОК ИНВАРИАНТЕН</b><br><br>
+           Всего отмечено: <b>${totalMarked}</b>, то есть чётное число<br><br>
+           поэтому этот инвариант не различает «всё горит» и «всё выключено» — нужно найти рисунок с нечётным числом отмеченных клеток<br><br>
+           <b>ищем дальше 🥲</b>`);
       }
       return;
     }
@@ -760,6 +871,140 @@
     renderFailures();
   }
 
+  /* ---------- поиск инварианта нечётной площади (хакерский режим) ---------- */
+  function findOddInvariant() {
+    // пронумеруем живые клетки
+    const indexOf = {};
+    const cellsOf = [];
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (grid[i][j] !== 2) {
+          indexOf[i + ',' + j] = cellsOf.length;
+          cellsOf.push({ i, j });
+        }
+      }
+    }
+    const N = cellsOf.length;
+    if (N === 0) return { error: 'На поле нет живых клеток.' };
+    if (N > 5000) return { error: 'Поле слишком большое для быстрого поиска инварианта.' };
+
+    // уравнения: для каждой позиции каждой фигуры — сумма по её живым клеткам = 0
+    const equations = [];
+    for (const s of shapes) {
+      if (s.r > rows || s.c > cols) continue;
+      for (let si = 0; si + s.r <= rows; si++) {
+        for (let sj = 0; sj + s.c <= cols; sj++) {
+          let mask = 0n;
+          for (let a = 0; a < s.r; a++) {
+            for (let b = 0; b < s.c; b++) {
+              const ii = si + a, jj = sj + b;
+              if (grid[ii][jj] === 2) continue;
+              mask |= 1n << BigInt(indexOf[ii + ',' + jj]);
+            }
+          }
+          if (mask !== 0n) equations.push(mask);
+        }
+      }
+    }
+
+    if (equations.length === 0) {
+      if (shapes.length === 0) {
+        // нет фигур — годится любая одна клетка
+        const sol = new Array(N).fill(0);
+        sol[0] = 1;
+        return { solution: sol, cellsOf };
+      }
+      return { error: 'Заданные фигуры не помещаются на поле.' };
+    }
+
+    // метод Гаусса над F_2 (RREF)
+    const pivotCols = [];
+    let rank = 0;
+    for (let col = 0; col < N && rank < equations.length; col++) {
+      const bit = 1n << BigInt(col);
+      let pivot = -1;
+      for (let r = rank; r < equations.length; r++) {
+        if (equations[r] & bit) { pivot = r; break; }
+      }
+      if (pivot < 0) continue;
+      const tmp = equations[rank];
+      equations[rank] = equations[pivot];
+      equations[pivot] = tmp;
+      for (let r = 0; r < equations.length; r++) {
+        if (r !== rank && (equations[r] & bit)) {
+          equations[r] ^= equations[rank];
+        }
+      }
+      pivotCols.push(col);
+      rank++;
+    }
+
+    // свободные переменные
+    const isPivot = new Set(pivotCols);
+    const freeVars = [];
+    for (let c = 0; c < N; c++) if (!isPivot.has(c)) freeVars.push(c);
+
+    if (freeVars.length === 0) {
+      return { error: 'Инварианта нечётной площади не существует — все лампочки можно выключить 🎉' };
+    }
+
+    // перебираем свободные переменные, ищем решение с нечётным числом клеток
+    let bestOdd = null;
+    for (const f0 of freeVars) {
+      const sol = new Array(N).fill(0);
+      sol[f0] = 1;
+      let count = 1;
+      for (let r = 0; r < rank; r++) {
+        const col = pivotCols[r];
+        const b = Number((equations[r] >> BigInt(f0)) & 1n);
+        sol[col] = b;
+        count += b;
+      }
+      if (count % 2 === 1) { bestOdd = sol; break; }
+    }
+
+    if (!bestOdd) {
+      // по альтернативе Фредгольма: все инварианты имеют чётную площадь
+      // → состояние «всё горит» достижимо из «всё выключено»
+      return { error: 'Инварианта нечётной площади не существует — все лампочки можно выключить 🎉' };
+    }
+
+    return { solution: bestOdd, cellsOf };
+  }
+
+  $('btnFindInv').addEventListener('click', () => {
+    clearInvHighlights();
+    clearBadMarks();
+
+    if (shapes.length === 0) {
+      showResult('bad', 'не задано ни одной фигуры-хода 😐');
+      shapeCard.classList.add('err');
+      return;
+    }
+
+    const result = findOddInvariant();
+    if (result.error) {
+      showResult('bad', result.error);
+      return;
+    }
+
+    const { solution, cellsOf } = result;
+    let count = 0;
+    for (let idx = 0; idx < solution.length; idx++) {
+      if (solution[idx]) {
+        const c = cellsOf[idx];
+        cellEl(c.i, c.j).classList.add('inv');
+        count++;
+      }
+    }
+    invHighlightsExist = true;
+
+    showResult('ok',
+      `🔍 <b>Инвариант найден: ${count} клеток</b> (нечётная площадь).<br><br>
+       Любой разрешённый ход накрывает чётное число этих клеток, поэтому чётность числа горящих лампочек на них сохраняется.<br><br>
+       Так как ${count} нечётно, <b>выключить все лампочки невозможно</b> 🥳`);
+  });
+
   /* ---------- обработчики ---------- */
   $('btnCreate').addEventListener('click', () => {
     let r = parseInt($('inpRows').value, 10);
@@ -768,6 +1013,15 @@
     c = Math.min(150, Math.max(1, isNaN(c) ? 5 : c));
     $('inpRows').value = r;
     $('inpCols').value = c;
+
+    // секретная команда: 67 × 67 переключает хакерский режим
+    if (r === 67 && c === 67) {
+      document.body.classList.toggle('hacker');
+      clearInvHighlights();
+      hideResult();
+      return; // поле не перестраиваем
+    }
+
     buildGrid(r, c);
   });
 
@@ -781,6 +1035,7 @@
     if (!shapes.some(s => s.r === h && s.c === w)) {
       shapes.push({ r: h, c: w });
       renderChips();
+      clearInvHighlights();
       hideResult();
     }
   });
@@ -793,6 +1048,7 @@
         grid[i][j] = 0;
         cellEl(i, j).classList.remove('on');
       }
+    clearInvHighlights();
     hideResult();
   });
 
@@ -809,4 +1065,4 @@
 })();
 </script>
 </body>
-    </html>
+</html>
