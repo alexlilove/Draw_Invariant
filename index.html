@@ -81,17 +81,12 @@
   }
   body.hacker .card { border: 1px solid #00a828; }
   body.hacker button { font-family: inherit; }
+  body.hacker input[type=text],
   body.hacker input[type=number] { font-family: inherit; }
   body.hacker .primary { color: #000; }
-  body.hacker .result.ok {
-    background: #001a00; color: #00ff41; border-color: #00cc33;
-  }
-  body.hacker .result.bad {
-    background: #1a0000; color: #ff4141; border-color: #cc0000;
-  }
-  body.hacker .result.warn {
-    background: #1a1a00; color: #ffff41; border-color: #cccc00;
-  }
+  body.hacker .result.ok { background: #001a00; color: #00ff41; border-color: #00cc33; }
+  body.hacker .result.bad { background: #1a0000; color: #ff4141; border-color: #cc0000; }
+  body.hacker .result.warn { background: #1a1a00; color: #ffff41; border-color: #cccc00; }
   body.hacker h1 small { color: #00a828; }
   body.hacker .icon-btn { border-color: #00a828; }
   body.hacker .cell { outline: 1px solid #003300; }
@@ -110,6 +105,77 @@
     z-index: 1000;
   }
 
+  /* ---------- ЗОЛОТОЙ РЕЖИМ ---------- */
+  body.gold {
+    --bg: #0a0700;
+    --bg-bottom: rgba(10,7,0,.95);
+    --card: #1a1200;
+    --text: #ffd700;
+    --muted: #b8860b;
+    --label: #d4a017;
+    --input-border: #b8860b;
+    --input-bg: #0a0700;
+    --btn-bg: #3d2e00;
+    --btn-text: #ffd700;
+    --cell-bg: #1a1200;
+    --cell-on: #ffd700;
+    --cell-hole-a: #0a0700;
+    --cell-hole-b: #3d2e00;
+    --shadow: 0 0 12px rgba(255,215,0,.35);
+    --divider: #3d2e00;
+    --chip-bg: #3d2e00;
+    --chip-text: #ffd700;
+    --chip-btn-bg: rgba(255,215,0,.2);
+    --primary: #ffd700;
+    --primary-active: #e6c200;
+    --more-bg: rgba(255,215,0,.15);
+    font-family: Georgia, "Times New Roman", serif;
+    padding-bottom: 170px;
+  }
+  body.gold .card { border: 1px solid #b8860b; box-shadow: 0 0 12px rgba(255,215,0,.25); }
+  body.gold button { font-family: inherit; }
+  body.gold input[type=text],
+  body.gold input[type=number] { font-family: inherit; }
+  body.gold .primary { color: #0a0700; }
+  body.gold .result.ok { background: #1a1200; color: #ffd700; border-color: #b8860b; }
+  body.gold .result.bad { background: #1a0000; color: #ff6b6b; border-color: #800000; }
+  body.gold .result.warn { background: #1a1a00; color: #ffe066; border-color: #b8860b; }
+  body.gold .icon-btn { border-color: #b8860b; }
+  body.gold .cell { outline: 1px solid #3d2e00; }
+
+  /* Переливающиеся золотые заголовки */
+  body.gold h1,
+  body.gold .card-title {
+    background: linear-gradient(90deg,
+      #b8860b 0%,
+      #ffd700 25%,
+      #fff8c0 50%,
+      #ffd700 75%,
+      #b8860b 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: goldText 8s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(255,215,0,.45));
+  }
+  body.gold h1 small {
+    -webkit-text-fill-color: var(--muted);
+    background: none;
+    animation: none;
+    filter: none;
+    color: var(--muted);
+  }
+  @keyframes goldText {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  body.gold .cell.on {
+    background: linear-gradient(135deg, #ffd700, #ffed4e, #d4a017);
+    box-shadow: 0 0 8px rgba(255,215,0,.7);
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -124,7 +190,6 @@
   h1 { font-size: 17px; margin: 4px 0 12px 12px; font-weight: 700; }
   h1 small { display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:2px;}
 
-  /* верхняя панель с кнопками */
   .topbar { display: flex; align-items: flex-start; gap: 8px; }
   .topbar h1 { flex: 1 1 auto; }
   .top-actions { display: flex; gap: 6px; flex: 0 0 auto; margin-top: 2px; }
@@ -148,10 +213,7 @@
     margin-bottom: 12px;
     transition: background .2s;
   }
-  .card.err {
-    outline: 2px solid #ef4444;
-    outline-offset: 1px;
-  }
+  .card.err { outline: 2px solid #ef4444; outline-offset: 1px; }
   .card-title {
     font-size: 12px;
     text-transform: uppercase;
@@ -163,7 +225,8 @@
 
   .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   label { display: flex; flex-direction: column; font-size: 12px; color: var(--label); gap: 4px; flex: 1 1 0; }
-  input[type=number] {
+  input[type=number],
+  input[type=text] {
     font-size: 16px;
     padding: 8px 10px;
     border: 1px solid var(--input-border);
@@ -173,15 +236,15 @@
     color: var(--text);
     outline: none;
   }
-  input[type=number]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
-  input[type=number]::placeholder { color: var(--muted); opacity: .6; }
+  input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+  input::placeholder { color: var(--muted); opacity: .6; }
 
   button {
     font-family: inherit;
     font-size: 15px;
     border: none;
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 10px 14px 12px;
     background: var(--btn-bg);
     color: var(--btn-text);
     font-weight: 600;
@@ -191,8 +254,8 @@
   button:active { transform: scale(.97); }
   button.primary { background: var(--primary); color: #fff; }
   button.primary:active { background: var(--primary-active); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
 
-  /* фигуры-ходы */
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 0; }
   .chip {
     display: inline-flex;
@@ -218,9 +281,8 @@
   .add-shape { display: flex; align-items: center; gap: 6px; }
   .add-shape input { width: 60px; flex: 0 0 auto; text-align: center; }
   .add-shape span { color: var(--muted); font-weight: 700; }
-  .add-shape button { flex: 1 1 auto; padding: 10px 8px; }
+  .add-shape button { flex: 1 1 auto; padding: 10px 8px 12px; }
 
-  /* поле */
   .grid-viewport {
     position: relative;
     overflow: hidden;
@@ -232,6 +294,7 @@
     display: grid;
     gap: 3px;
     width: 100%;
+    position: relative;
     transform-origin: 0 0;
     will-change: transform;
     user-select: none;
@@ -259,7 +322,6 @@
   body.dark .cell.bad { background: #7f1d1d; }
   body.dark .cell.on.bad { background: #ef4444; }
 
-  /* клетка-инвариант */
   .cell.inv {
     background: #00ff41;
     position: relative;
@@ -270,11 +332,62 @@
     0%, 100% { box-shadow: 0 0 6px #00ff41, 0 0 12px rgba(0,255,65,.6); }
     50% { box-shadow: 0 0 14px #00ff41, 0 0 28px rgba(0,255,65,.9); }
   }
-  body.hacker .cell.inv {
-    background: #00ff41;
+  body.hacker .cell.inv { background: #00ff41; }
+
+  /* ---------- Падающая золотая фигура ---------- */
+  .ghost {
+    position: absolute;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 45%, #d4a017 100%);
+    box-shadow:
+      0 0 20px rgba(255,215,0,.85),
+      0 0 40px rgba(255,215,0,.45),
+      inset 0 0 15px rgba(255,255,255,.45);
+    border: 2px solid #ffed4e;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.55;
+    transform: translateY(-400px);
+    will-change: transform, opacity;
+  }
+  .ghost.falling {
+  animation: ghostFall 1.6s linear forwards;
+}
+
+.ghost.fading {
+  animation: ghostFade 0.9s ease-out forwards;
+}
+  .ghost.fade {
+    transition: opacity .2s, transform .2s;
+    opacity: 0 !important;
+    transform: translateY(0) scale(.9) !important;
+  }
+  @keyframes ghostFall {
+  0%   { transform: translateY(-400px); opacity: 0; }
+  8%   { opacity: 0.55; }
+  80%  { transform: translateY(-40px); opacity: 0.55; }
+  92%  { transform: translateY(-30px); opacity: 0.55; }
+  98%  { transform: translateY(0); opacity: 0.55; }
+  100% { transform: translateY(0); opacity: 0.55; }
+  }
+  @keyframes ghostFade {
+  0% {
+    opacity: var(--ghost-alpha, 1);
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+  60% {
+    opacity: calc(var(--ghost-alpha, 1) * 0.6);
+    transform: translateY(0) scale(1.05);
+    filter: blur(2px) brightness(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(1.12);
+    filter: blur(6px) brightness(1.6);
+  }
   }
 
-  /* результат */
   .result {
     display: none;
     border-radius: 14px;
@@ -302,7 +415,6 @@
     font-weight: 700;
   }
 
-  /* нижняя панель */
   .bottom {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -328,16 +440,16 @@
     border: 1px solid var(--divider);
     color: var(--text);
   }
-  .bottom .primary { flex: 1 1 auto; padding: 14px; font-size: 15px; }
+  .bottom .primary { flex: 1 1 auto; padding: 14px 14px 16px; font-size: 15px; }
 
-  /* кнопка «найти инвариант» (только в хакерском режиме) */
+  /* кнопка «найти инвариант» (только хакерский режим) */
   #btnFindInv {
     display: none;
     position: fixed;
     left: 12px;
     right: 12px;
     bottom: calc(76px + env(safe-area-inset-bottom));
-    padding: 12px;
+    padding: 12px 12px 14px;
     background: #00ff41;
     color: #000;
     font-weight: 700;
@@ -354,7 +466,45 @@
   body.hacker #btnFindInv { display: block; }
   #btnFindInv:active { transform: scale(.98); background: #00cc33; }
 
-  /* плашка с задачей */
+  /* кнопка «найти алгоритм» (только золотой режим) */
+  #btnFindAlgo {
+    display: none;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    padding: 12px 12px 14px;
+    background: linear-gradient(120deg,
+      #b8860b 0%,
+      #ffd700 20%,
+      #fff8c0 40%,
+      #ffd700 60%,
+      #d4a017 80%,
+      #b8860b 100%);
+    background-size: 300% 100%;
+    animation: goldBtnShimmer 8s linear infinite;
+    color: #0a0700;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 10px;
+    z-index: 49;
+    box-shadow:
+      0 0 20px rgba(255,215,0,.7),
+      0 0 40px rgba(255,215,0,.35);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid #ffed4e;
+    text-shadow: 0 0 4px rgba(255,255,255,.6);
+  }
+  body.gold #btnFindAlgo { display: block; }
+  #btnFindAlgo:active { transform: scale(.98); }
+  #btnFindAlgo:disabled { opacity: .6; cursor: wait; }
+  @keyframes goldBtnShimmer {
+    0%   { background-position: 300% 0; }
+    100% { background-position: -200% 0; }
+  }
+
   .overlay {
     position: fixed;
     inset: 0;
@@ -417,10 +567,10 @@
   <div class="card-title">Размер поля</div>
   <div class="row">
     <label>ширина
-      <input id="inpCols" type="number" value="5" min="1" max="150" inputmode="numeric">
+      <input id="inpCols" type="text" value="5">
     </label>
     <label>высота
-      <input id="inpRows" type="number" value="5" min="1" max="150" inputmode="numeric">
+      <input id="inpRows" type="text" value="5">
     </label>
     <button id="btnCreate" style="flex:0 0 auto;align-self:flex-end;">создать</button>
   </div>
@@ -430,9 +580,9 @@
   <div class="card-title">добавьте фигуры–ходы</div>
   <div id="chips" class="chips"></div>
   <div class="add-shape">
-    <input id="inpSH" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
+    <input id="inpSH" type="text" value="" placeholder="2">
     <span>×</span>
-    <input id="inpSW" type="number" value="" placeholder="2" min="1" max="150" inputmode="numeric">
+    <input id="inpSW" type="text" value="" placeholder="2">
     <button id="btnAddShape">добавить</button>
   </div>
 </div>
@@ -448,13 +598,13 @@
 <div id="result" class="result"></div>
 
 <button id="btnFindInv">☢️ найти инвариант ☢️</button>
+<button id="btnFindAlgo">🌟 найти алгоритм 🌟</button>
 
 <div class="bottom">
   <button id="btnClear" class="trash" title="Очистить поле">🗑️</button>
   <button id="btnCheck" class="primary">проверить инвариантность</button>
 </div>
 
-<!-- Плашка с условием задачи -->
 <div id="overlay" class="overlay hidden">
   <div class="modal">
     <button class="modal-close" id="btnCloseHelp" aria-label="Закрыть">×</button>
@@ -468,7 +618,7 @@
 <script>
 (function () {
   let rows = 5, cols = 5;
-  // 0 — пусто, 1 — отмечено, 2 — дырка (клетка удалена)
+  // 0 — пусто, 1 — отмечено, 2 — дырка
   let grid = [];
   let shapes = [];
 
@@ -478,8 +628,9 @@
   const resultEl = $('result');
   const chipsEl = $('chips');
   const shapeCard = $('shapeCard');
+  const btnFindAlgo = $('btnFindAlgo');
 
-  /* ---------- тема ---------- */
+  /* ---------- тема (светлая/тёмная) ---------- */
   const btnTheme = $('btnTheme');
   function setTheme(dark) {
     document.body.classList.toggle('dark', dark);
@@ -534,7 +685,7 @@
   }
 
   function setCell(i, j, v) {
-    if (grid[i][j] === 2) return;          // дырки не трогаем
+    if (grid[i][j] === 2) return;
     if (grid[i][j] === v) return;
     grid[i][j] = v;
     const el = cellEl(i, j);
@@ -634,7 +785,6 @@
   let lastPinchDist = 0;
   let lastMid = null;
 
-  // long-press
   const LONG_PRESS_MS = 500;
   const MOVE_TOLERANCE_PX = 8;
   let longPressTimer = null;
@@ -643,6 +793,7 @@
   let startPoint = null;
 
   viewport.addEventListener('pointerdown', (e) => {
+    if (animatingAlgo) { e.preventDefault(); return; }
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -661,7 +812,6 @@
         }, LONG_PRESS_MS);
       }
     } else if (pointers.size >= 2) {
-      // начинается жест двумя пальцами — отменяем long-press/рисование
       drawing = false;
       longPressFired = false;
       startCell = null;
@@ -685,7 +835,6 @@
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    /* --- два пальца: зум + панорамирование --- */
     if (pointers.size >= 2) {
       const pts = [...pointers.values()].slice(0, 2);
       const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
@@ -694,11 +843,9 @@
       const midY = (pts[0].y + pts[1].y) / 2 - rect.top;
 
       if (lastPinchDist > 0 && lastMid) {
-        // панорамирование по смещению средней точки
         tx += midX - lastMid.x;
         ty += midY - lastMid.y;
 
-        // зум вокруг текущей средней точки
         const k = dist / lastPinchDist;
         const newScale = Math.min(8, Math.max(1, scale * k));
         const ratio = newScale / scale;
@@ -715,7 +862,6 @@
       return;
     }
 
-    /* --- один палец: рисование --- */
     if (pointers.size === 1 && startCell) {
       const dx = e.clientX - startPoint.x;
       const dy = e.clientY - startPoint.y;
@@ -755,8 +901,7 @@
     if (pointers.size === 0) {
       if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
 
-      // обычный тап: переключаем клетку
-      if (!drawing && !longPressFired && startCell) {
+      if (!drawing && !longPressFired && startCell && !animatingAlgo) {
         const v = grid[startCell.i][startCell.j];
         if (v !== 2) setCell(startCell.i, startCell.j, v ? 0 : 1);
       }
@@ -766,7 +911,6 @@
       startCell = null;
       startPoint = null;
     } else if (pointers.size === 1) {
-      // с двух пальцев остался один — новые жесты не начинаем до полного отпускания
       drawing = false;
       startCell = null;
       longPressFired = false;
@@ -857,7 +1001,6 @@
       return;
     }
 
-    // подсветим первую неудачную фигуру (дырки не подсвечиваем)
     const f = failures[0];
     for (let a = 0; a < f.s.r; a++)
       for (let b = 0; b < f.s.c; b++) {
@@ -871,9 +1014,8 @@
     renderFailures();
   }
 
-  /* ---------- поиск инварианта нечётной площади (хакерский режим) ---------- */
+  /* ---------- поиск инварианта нечётной площади ---------- */
   function findOddInvariant() {
-    // пронумеруем живые клетки
     const indexOf = {};
     const cellsOf = [];
     for (let i = 0; i < rows; i++) {
@@ -888,7 +1030,6 @@
     if (N === 0) return { error: 'На поле нет живых клеток.' };
     if (N > 5000) return { error: 'Поле слишком большое для быстрого поиска инварианта.' };
 
-    // уравнения: для каждой позиции каждой фигуры — сумма по её живым клеткам = 0
     const equations = [];
     for (const s of shapes) {
       if (s.r > rows || s.c > cols) continue;
@@ -909,7 +1050,6 @@
 
     if (equations.length === 0) {
       if (shapes.length === 0) {
-        // нет фигур — годится любая одна клетка
         const sol = new Array(N).fill(0);
         sol[0] = 1;
         return { solution: sol, cellsOf };
@@ -917,7 +1057,6 @@
       return { error: 'Заданные фигуры не помещаются на поле.' };
     }
 
-    // метод Гаусса над F_2 (RREF)
     const pivotCols = [];
     let rank = 0;
     for (let col = 0; col < N && rank < equations.length; col++) {
@@ -939,7 +1078,6 @@
       rank++;
     }
 
-    // свободные переменные
     const isPivot = new Set(pivotCols);
     const freeVars = [];
     for (let c = 0; c < N; c++) if (!isPivot.has(c)) freeVars.push(c);
@@ -948,7 +1086,6 @@
       return { error: 'Инварианта нечётной площади не существует — все лампочки можно выключить 🎉' };
     }
 
-    // перебираем свободные переменные, ищем решение с нечётным числом клеток
     let bestOdd = null;
     for (const f0 of freeVars) {
       const sol = new Array(N).fill(0);
@@ -964,8 +1101,6 @@
     }
 
     if (!bestOdd) {
-      // по альтернативе Фредгольма: все инварианты имеют чётную площадь
-      // → состояние «всё горит» достижимо из «всё выключено»
       return { error: 'Инварианта нечётной площади не существует — все лампочки можно выключить 🎉' };
     }
 
@@ -1005,29 +1140,249 @@
        Так как ${count} нечётно, <b>выключить все лампочки невозможно</b> 🥳`);
   });
 
+  /* ---------- поиск алгоритма выключения ---------- */
+  function findAlgorithm() {
+    const indexOf = {};
+    const live = [];
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (grid[i][j] !== 2) {
+          indexOf[i + ',' + j] = live.length;
+          live.push({ i, j });
+        }
+      }
+    }
+    const N = live.length;
+    if (N === 0) return { error: 'На поле нет живых клеток.' };
+
+    const moves = [];
+    for (const s of shapes) {
+      if (s.r > rows || s.c > cols) continue;
+      for (let i = 0; i + s.r <= rows; i++)
+        for (let j = 0; j + s.c <= cols; j++)
+          moves.push({ s, i, j });
+    }
+
+    const M = moves.length;
+    if (M === 0) return { error: 'Заданные фигуры не помещаются на поле.' };
+    if (M > 2000) return { error: 'Слишком много ходов для быстрого поиска.' };
+    if (N > 5000) return { error: 'Поле слишком большое.' };
+
+    // Для каждой живой клетки: сумма по ходам, накрывающим её = 1 (mod 2)
+    const eqs = [];
+    for (let ci = 0; ci < N; ci++) {
+      const c = live[ci];
+      let mask = 0n;
+      for (let k = 0; k < M; k++) {
+        const m = moves[k];
+        if (c.i >= m.i && c.i < m.i + m.s.r && c.j >= m.j && c.j < m.j + m.s.c) {
+          mask |= 1n << BigInt(k);
+        }
+      }
+      eqs.push({ mask, rhs: 1 });
+    }
+
+    // Гаусс над F_2
+    const pivotForRow = [];
+    let rank = 0;
+    for (let col = 0; col < M && rank < N; col++) {
+      const bit = 1n << BigInt(col);
+      let pivot = -1;
+      for (let r = rank; r < N; r++) {
+        if (eqs[r].mask & bit) { pivot = r; break; }
+      }
+      if (pivot < 0) continue;
+      [eqs[rank], eqs[pivot]] = [eqs[pivot], eqs[rank]];
+      for (let r = 0; r < N; r++) {
+        if (r !== rank && (eqs[r].mask & bit)) {
+          eqs[r] = {
+            mask: eqs[r].mask ^ eqs[rank].mask,
+            rhs: eqs[r].rhs ^ eqs[rank].rhs
+          };
+        }
+      }
+      pivotForRow.push(col);
+      rank++;
+    }
+
+    for (let r = rank; r < N; r++) {
+      if (eqs[r].mask === 0n && eqs[r].rhs === 1) {
+        return { error: 'Алгоритма не существует — выключить все лампочки невозможно.' };
+      }
+    }
+
+    const x = new Array(M).fill(0);
+    for (let i = 0; i < rank; i++) {
+      x[pivotForRow[i]] = eqs[i].rhs;
+    }
+
+    const result = [];
+    for (let k = 0; k < M; k++) {
+      if (x[k]) result.push(moves[k]);
+    }
+    return { moves: result };
+  }
+
+  /* ---------- анимация падения фигур ---------- */
+  let animatingAlgo = false;
+
+  function createGhost(m) {
+    const cellTL = cellEl(m.i, m.j);
+    const cellBR = cellEl(m.i + m.s.r - 1, m.j + m.s.c - 1);
+    const left = cellTL.offsetLeft;
+    const top = cellTL.offsetTop;
+    const right = cellBR.offsetLeft + cellBR.offsetWidth;
+    const bottom = cellBR.offsetTop + cellBR.offsetHeight;
+
+    const ghost = document.createElement('div');
+    ghost.className = 'ghost';
+    ghost.style.left = left + 'px';
+    ghost.style.top = top + 'px';
+    ghost.style.width = (right - left) + 'px';
+    ghost.style.height = (bottom - top) + 'px';
+    return ghost;
+  }
+
+  function toggleShapeCells(m) {
+    for (let a = 0; a < m.s.r; a++) {
+      for (let b = 0; b < m.s.c; b++) {
+        const i = m.i + a, j = m.j + b;
+        if (grid[i][j] === 2) continue;
+        grid[i][j] = grid[i][j] ? 0 : 1;
+        const el = cellEl(i, j);
+        el.classList.toggle('on', !!grid[i][j]);
+        el.classList.remove('hole', 'inv', 'bad');
+      }
+    }
+  }
+
+  function animateMove(m, duration) {
+    return new Promise(resolve => {
+      const ghost = createGhost(m);
+      gridEl.appendChild(ghost);
+      void ghost.offsetHeight;
+      ghost.classList.add('falling');
+      if (duration !== 1600) {
+        ghost.style.animationDuration = duration + 'ms';
+      }
+      setTimeout(() => {
+        toggleShapeCells(m);
+        ghost.classList.add('fading');
+        setTimeout(() => {
+          ghost.remove();
+          resolve();
+        }, 900);
+      }, duration);
+    });
+  }
+
+  async function playAlgorithm(moves) {
+    animatingAlgo = true;
+    btnFindAlgo.disabled = true;
+
+    // Сбрасываем в «всё горит», чтобы анимация заканчивалась на «всё выключено»
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (grid[i][j] === 2) continue;
+        grid[i][j] = 1;
+        cellEl(i, j).classList.add('on');
+      }
+    }
+
+    const perMove = Math.max(220, Math.min(1600, 1600 - moves.length * 30));
+
+    for (const m of moves) {
+      await animateMove(m, perMove);
+    }
+
+    animatingAlgo = false;
+    btnFindAlgo.disabled = false;
+  }
+
+  btnFindAlgo.addEventListener('click', () => {
+    if (animatingAlgo) return;
+    clearInvHighlights();
+    clearBadMarks();
+
+    if (shapes.length === 0) {
+      showResult('bad', 'не задано ни одной фигуры-хода 😐');
+      shapeCard.classList.add('err');
+      return;
+    }
+
+    const result = findAlgorithm();
+    if (result.error) {
+      showResult('bad', result.error);
+      return;
+    }
+
+    if (result.moves.length === 0) {
+      showResult('ok', 'Все лампочки уже выключены — ни одного хода не нужно 🎉');
+      return;
+    }
+
+    showResult('ok',
+      `🌟 <b>Алгоритм найден! Ходов: ${result.moves.length}</b><br><br>
+       Сейчас фигуры начнут падать на поле, переключая лампочки 🌟`);
+
+    playAlgorithm(result.moves);
+  });
+
   /* ---------- обработчики ---------- */
   $('btnCreate').addEventListener('click', () => {
-    let r = parseInt($('inpRows').value, 10);
-    let c = parseInt($('inpCols').value, 10);
+    const rawRows = ($('inpRows').value || '').trim().toLowerCase();
+    const rawCols = ($('inpCols').value || '').trim().toLowerCase();
+
+    // секретный ключ: au × rum → золотой режим
+    if ((rawRows === 'rum' && rawCols === 'au') ||
+        (rawRows === 'au'  && rawCols === 'rum')|| (rawRows === '585' && rawCols === '585')) {
+      document.body.classList.toggle('gold');
+      if (document.body.classList.contains('gold')) {
+        document.body.classList.remove('hacker');
+      }
+      clearInvHighlights();
+      hideResult();
+      return; // поле не перестраиваем
+    }
+
+    let r = parseInt(rawRows, 10);
+    let c = parseInt(rawCols, 10);
     r = Math.min(150, Math.max(1, isNaN(r) ? 5 : r));
     c = Math.min(150, Math.max(1, isNaN(c) ? 5 : c));
     $('inpRows').value = r;
     $('inpCols').value = c;
 
-    // секретная команда: 67 × 67 переключает хакерский режим
+    // секретная команда: 67 × 67 → хакерский режим
     if (r === 67 && c === 67) {
       document.body.classList.toggle('hacker');
+      if (document.body.classList.contains('hacker')) {
+        document.body.classList.remove('gold');
+      }
       clearInvHighlights();
       hideResult();
-      return; // поле не перестраиваем
+      return;
     }
 
     buildGrid(r, c);
   });
 
   $('btnAddShape').addEventListener('click', () => {
-    let h = parseInt($('inpSH').value, 10);
-    let w = parseInt($('inpSW').value, 10);
+    const rawH = ($('inpSH').value || '').trim().toLowerCase();
+    const rawW = ($('inpSW').value || '').trim().toLowerCase();
+
+    // тоже поддержим ключ au × rum на полях фигуры
+    if ((rawH === 'au' && rawW === 'rum') || (rawH === 'rum' && rawW === 'au')) {
+      document.body.classList.toggle('gold');
+      if (document.body.classList.contains('gold')) {
+        document.body.classList.remove('hacker');
+      }
+      clearInvHighlights();
+      hideResult();
+      return;
+    }
+
+    let h = parseInt(rawH, 10);
+    let w = parseInt(rawW, 10);
     h = Math.min(150, Math.max(1, isNaN(h) ? 2 : h));
     w = Math.min(150, Math.max(1, isNaN(w) ? 2 : w));
     $('inpSH').value = h;
@@ -1040,7 +1395,6 @@
     }
   });
 
-  // Очистка: убираем отметки, дырки оставляем
   $('btnClear').addEventListener('click', () => {
     for (let i = 0; i < rows; i++)
       for (let j = 0; j < cols; j++) {
@@ -1054,7 +1408,6 @@
 
   $('btnCheck').addEventListener('click', checkInvariant);
 
-  // снимаем подсветку карточки фигур при любом взаимодействии с ней
   ['click', 'input', 'focusin', 'change'].forEach(ev =>
     shapeCard.addEventListener(ev, () => shapeCard.classList.remove('err'))
   );
